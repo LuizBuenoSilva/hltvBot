@@ -6,7 +6,7 @@ import Image from "next/image";
 export default function Home() {
   const [isHovered, setIsHovered] = useState(false);
 
-  const botInviteUrl = "https://discord.com/oauth2/authorize?client_id=1404545704935952434&integration_type=0&scope=applications.commands";
+  const botInviteUrl = "https://discord.com/oauth2/authorize?client_id=1404545704935952434&permissions=8&integration_type=0&scope=bot+applications.commands";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">

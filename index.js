@@ -120,7 +120,7 @@ const commands = [
                 .setDescription(`**${horario}** (Horário de Brasília)`)
                 .setTimestamp();
             
-            await interaction.reply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
         }
     },
     {
@@ -142,7 +142,7 @@ const commands = [
                 });
             });
             
-            await interaction.reply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
         }
     },
     {
@@ -164,7 +164,7 @@ const commands = [
                 });
             });
             
-            await interaction.reply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
         }
     },
     {
@@ -182,28 +182,31 @@ const commands = [
                     )
             ),
         async execute(interaction) {
-            const nomeJogador = interaction.options.getString('nome');
+            const nomeJogador = interaction.options.getString('nome').toLowerCase();
             const jogador = exemploJogadores[nomeJogador];
             
             if (!jogador) {
-                await interaction.reply('❌ Jogador não encontrado!');
+                await interaction.editReply({
+                    content: '❌ Jogador não encontrado! Tente: s1mple, zywoo, sh1ro'
+                });
                 return;
             }
             
             const embed = new EmbedBuilder()
-                .setColor('#ffd700')
-                .setTitle(`👤 Estatísticas - ${jogador.nome}`)
-                .setDescription(`Jogador do time **${jogador.time}**`)
+                .setColor('#FF6B35')
+                .setTitle(`👤 ${jogador.nome}`)
+                .setDescription(`Estatísticas do jogador **${jogador.nome}**`)
                 .addFields(
-                    { name: '⭐ Rating 2.0', value: jogador.rating, inline: true },
-                    { name: '💀 K/D Ratio', value: jogador.kd, inline: true },
+                    { name: '🏆 Time', value: jogador.time, inline: true },
+                    { name: '⭐ Rating', value: jogador.rating, inline: true },
+                    { name: '💀 K/D', value: jogador.kd, inline: true },
                     { name: '🎯 ADR', value: jogador.adr, inline: true },
                     { name: '📊 KAST', value: jogador.kast, inline: true },
-                    { name: '💥 Impact Rating', value: jogador.impacto, inline: true }
+                    { name: '💥 Impacto', value: jogador.impacto, inline: true }
                 )
                 .setTimestamp();
             
-            await interaction.reply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
         }
     },
     {
@@ -212,21 +215,20 @@ const commands = [
             .setDescription('Mostra o ranking mundial de times'),
         async execute(interaction) {
             const embed = new EmbedBuilder()
-                .setColor('#dc3545')
-                .setTitle('🏆 Ranking Mundial HLTV')
+                .setColor('#FF6B35')
+                .setTitle('🏆 Ranking Mundial CS2')
                 .setDescription('Top 5 times do mundo:')
                 .setTimestamp();
             
             exemploRanking.forEach(time => {
-                const emoji = time.posicao === 1 ? '🥇' : time.posicao === 2 ? '🥈' : time.posicao === 3 ? '🥉' : '🏅';
                 embed.addFields({
-                    name: `${emoji} #${time.posicao} - ${time.time}`,
-                    value: `📊 **Pontos:** ${time.pontos}`,
+                    name: `${time.posicao}º ${time.time}`,
+                    value: `📊 ${time.pontos} pontos`,
                     inline: true
                 });
             });
             
-            await interaction.reply({ embeds: [embed] });
+            await interaction.editReply({ embeds: [embed] });
         }
     }
 ];
@@ -265,10 +267,18 @@ client.on('interactionCreate', async interaction => {
     
     if (!command) {
         console.error(`❌ Comando ${interaction.commandName} não encontrado.`);
+        await interaction.reply({
+            content: '❌ Comando não encontrado!',
+            ephemeral: true
+        });
         return;
     }
     
     try {
+        // Defer a resposta para evitar timeout
+        await interaction.deferReply();
+        
+        // Executar o comando
         await command.execute(interaction);
     } catch (error) {
         console.error('❌ Erro ao executar comando:', error);
@@ -278,9 +288,9 @@ client.on('interactionCreate', async interaction => {
             ephemeral: true
         };
         
-        if (interaction.replied || interaction.deferred) {
-            await interaction.followUp(errorMessage);
-        } else {
+        if (interaction.deferred) {
+            await interaction.editReply(errorMessage);
+        } else if (!interaction.replied) {
             await interaction.reply(errorMessage);
         }
     }

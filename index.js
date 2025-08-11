@@ -1,10 +1,11 @@
 const { Client, GatewayIntentBits, Collection, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 
-// Keep-alive para plataformas de deploy
-if (process.env.NODE_ENV === 'production') {
+// Keep-alive para plataformas de deploy (sempre ativo no Render)
+if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
     try {
         require('./keep-alive');
+        console.log('🌐 Keep-alive server iniciado para plataforma de deploy');
     } catch (error) {
         console.log('Keep-alive não encontrado, continuando sem ele...');
     }

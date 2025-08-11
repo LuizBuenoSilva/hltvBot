@@ -1,0 +1,7 @@
+# Ignorar pasta frontend durante o build do bot
+frontend/
+
+# Arquivos de desenvolvimento
+*.md
+.git/
+.gitignore
